@@ -7,6 +7,7 @@ import { SwapPoolTabs } from '../../components/NavigationTabs'
 import SwapsTabs from '../../components/SwapsTabs'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import { useCurrency } from '../../hooks/Tokens'
+import OneChain from './OneChain'
 
 export default function Swap() {
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -40,7 +41,7 @@ export default function Swap() {
       <AppBody>
         <SwapPoolTabs active={'swap'} />
         <SwapsTabs isCrossChain={isCrossChain} onSetIsCrossChain={handleSetIsCrossChain} />
-        {isCrossChain ? <span>cross chain</span> : <span>one chain</span>}
+        {isCrossChain ? <span>cross chain</span> : <OneChain />}
       </AppBody>
     </>
   )

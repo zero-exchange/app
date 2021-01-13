@@ -36,7 +36,6 @@ import Loader from '../../../components/Loader'
 import ProgressSteps from '../../../components/ProgressSteps'
 import ReactGA from 'react-ga'
 import { SwapPoolTabs } from '../../../components/NavigationTabs'
-import SwapsTabs from '../../../components/SwapsTabs'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import TokenWarningModal from '../../../components/TokenWarningModal'
@@ -274,22 +273,12 @@ export default function OneChain() {
     onCurrencySelection
   ])
 
-  // swaps or cross chain
-  const [isCrossChain, setIsCrossChain] = useState<boolean>(false)
-  const handleSetIsCrossChain = (bool: boolean) => {
-    setIsCrossChain(bool)
-  }
   const [transferTo] = useState(
     SUPPORTED_CHAINS.find(x => {
       const ch = chainId ? CHAIN_LABELS[chainId] : 'ETH'
       return x !== ch
     })
   )
-
-  // token transfer
-  const handleTokenTransfer = () => {
-    alert('handle token transfer')
-  }
 
   return (
     <>
@@ -315,9 +304,7 @@ export default function OneChain() {
             onDismiss={handleConfirmDismiss}
           />
 
-          <SwapsTabs isCrossChain={isCrossChain} onSetIsCrossChain={handleSetIsCrossChain} />
           <BlockchainSelector
-            isCrossChain={isCrossChain}
             supportedChains={SUPPORTED_CHAINS}
             blockchain={chainId ? CHAIN_LABELS[chainId] : 'ETH'}
             transferTo={transferTo}
@@ -335,7 +322,6 @@ export default function OneChain() {
               onMax={handleMaxInput}
               onCurrencySelect={handleInputSelect}
               otherCurrency={currencies[Field.OUTPUT]}
-              isCrossChain={isCrossChain}
               id="swap-currency-input"
             />
             <AutoColumn justify="space-between">
@@ -344,10 +330,8 @@ export default function OneChain() {
                   <ArrowDown
                     size="24"
                     onClick={() => {
-                      if (!isCrossChain) {
-                        setApprovalSubmitted(false) // reset 2 step UI for approvals
-                        onSwitchTokens()
-                      }
+                      setApprovalSubmitted(false) // reset 2 step UI for approvals
+                      onSwitchTokens()
                     }}
                     color={currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.primary1 : theme.text2}
                   />
@@ -361,14 +345,13 @@ export default function OneChain() {
             </AutoColumn>
             <CurrencyInputPanel
               blockchain={'Avalanche'}
-              value={isCrossChain ? formattedAmounts[Field.INPUT] : formattedAmounts[Field.OUTPUT]}
+              value={formattedAmounts[Field.OUTPUT]}
               onUserInput={handleTypeOutput}
               label={'To'}
               showMaxButton={false}
-              currency={isCrossChain ? currencies[Field.INPUT] : currencies[Field.OUTPUT]}
+              currency={currencies[Field.OUTPUT]}
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}
-              isCrossChain={isCrossChain}
               id="swap-currency-output"
             />
 
@@ -388,7 +371,7 @@ export default function OneChain() {
 
             {showWrap ? null : (
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
-                {!isCrossChain && (
+                {
                   <AutoColumn gap="4px">
                     {Boolean(trade) && (
                       <RowBetween align="center">
@@ -413,19 +396,12 @@ export default function OneChain() {
                       </RowBetween>
                     )}
                   </AutoColumn>
-                )}
+                }
               </Card>
             )}
           </AutoColumn>
           <BottomGrouping>
-            {isCrossChain && typedValue.length > 0 ? (
-              <>
-                <p style={{ display: 'block', textAlign: 'center', color: '#F3841E', marginBottom: '1rem' }}>
-                  Transferring tokens from {currencies[Field.INPUT]?.symbol} to {transferTo}
-                </p>
-                <ButtonPrimary onClick={handleTokenTransfer}>Transfer Tokens</ButtonPrimary>
-              </>
-            ) : !account ? (
+            {!account ? (
               <ButtonLight onClick={toggleWalletModal}>Connect Wallet</ButtonLight>
             ) : showWrap ? (
               <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
@@ -525,7 +501,7 @@ export default function OneChain() {
           </BottomGrouping>
         </Wrapper>
       </AppBody>
-      {!isCrossChain && <AdvancedSwapDetailsDropdown trade={trade} />}
+      <AdvancedSwapDetailsDropdown trade={trade} />
     </>
   )
 }
