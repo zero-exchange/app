@@ -1,64 +1,61 @@
-import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
-import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
-import { AutoRow, RowBetween } from '../../components/Row'
-import { BETTER_TRADE_LINK_THRESHOLD, INITIAL_ALLOWED_SLIPPAGE } from '../../constants'
-import BetterTradeLink, { DefaultVersionLink } from '../../components/swap/BetterTradeLink'
-import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
-import Card, { GreyCard } from '../../components/Card'
-import Column, { AutoColumn } from '../../components/Column'
+import { ApprovalState, useApproveCallbackFromTrade } from '../../../hooks/useApproveCallback'
+import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from '../../../components/swap/styleds'
+import { AutoRow, RowBetween } from '../../../components/Row'
+import { BETTER_TRADE_LINK_THRESHOLD, INITIAL_ALLOWED_SLIPPAGE } from '../../../constants'
+import BetterTradeLink, { DefaultVersionLink } from '../../../components/swap/BetterTradeLink'
+import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from '../../../components/Button'
+import Card, { GreyCard } from '../../../components/Card'
+import Column, { AutoColumn } from '../../../components/Column'
 import { CurrencyAmount, JSBI, Token, Trade } from '@zeroexchange/sdk'
-import { LinkStyledButton, TYPE } from '../../theme'
+import { LinkStyledButton, TYPE } from '../../../theme'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { computeTradePriceBreakdown, warningSeverity } from '../../utils/prices'
-import { getTradeVersion, isTradeBetter } from '../../data/V1'
+import { computeTradePriceBreakdown, warningSeverity } from '../../../utils/prices'
+import { getTradeVersion, isTradeBetter } from '../../../data/V1'
 import {
   useDefaultsFromURLSearch,
   useDerivedSwapInfo,
   useSwapActionHandlers,
   useSwapState
-} from '../../state/swap/hooks'
-import { useExpertModeManager, useUserSlippageTolerance } from '../../state/user/hooks'
-import { useToggleSettingsMenu, useWalletModalToggle } from '../../state/application/hooks'
-import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
-import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
+} from '../../../state/swap/hooks'
+import { useExpertModeManager, useUserSlippageTolerance } from '../../../state/user/hooks'
+import { useToggleSettingsMenu, useWalletModalToggle } from '../../../state/application/hooks'
+import useToggledVersion, { DEFAULT_VERSION, Version } from '../../../hooks/useToggledVersion'
+import useWrapCallback, { WrapType } from '../../../hooks/useWrapCallback'
 
-import AddressInputPanel from '../../components/AddressInputPanel'
-import AdvancedSwapDetailsDropdown from '../../components/swap/AdvancedSwapDetailsDropdown'
-import AppBody from '../AppBody'
+import AddressInputPanel from '../../../components/AddressInputPanel'
+import AdvancedSwapDetailsDropdown from '../../../components/swap/AdvancedSwapDetailsDropdown'
+import AppBody from '../../AppBody'
 import { ArrowDown } from 'react-feather'
-import BlockchainSelector from '../../components/BlockchainSelector'
+import BlockchainSelector from '../../../components/BlockchainSelector'
 import { ChainId } from '@zeroexchange/sdk'
-import { ClickableText } from '../Pool/styleds'
-import ConfirmSwapModal from '../../components/swap/ConfirmSwapModal'
-import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import { Field } from '../../state/swap/actions'
-import Loader from '../../components/Loader'
-import ProgressSteps from '../../components/ProgressSteps'
+import { ClickableText } from '../../Pool/styleds'
+import ConfirmSwapModal from '../../../components/swap/ConfirmSwapModal'
+import CurrencyInputPanel from '../../../components/CurrencyInputPanel'
+import { Field } from '../../../state/swap/actions'
+import Loader from '../../../components/Loader'
+import ProgressSteps from '../../../components/ProgressSteps'
 import ReactGA from 'react-ga'
-import { SwapPoolTabs } from '../../components/NavigationTabs'
-import SwapsTabs from '../../components/SwapsTabs'
+import { SwapPoolTabs } from '../../../components/NavigationTabs'
+import SwapsTabs from '../../../components/SwapsTabs'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
-import TokenWarningModal from '../../components/TokenWarningModal'
-import TradePrice from '../../components/swap/TradePrice'
-import confirmPriceImpactWithoutFee from '../../components/swap/confirmPriceImpactWithoutFee'
-import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { useActiveWeb3React } from '../../hooks'
-import { useCurrency } from '../../hooks/Tokens'
-import useENSAddress from '../../hooks/useENSAddress'
-import { useSwapCallback } from '../../hooks/useSwapCallback'
+import TokenWarningModal from '../../../components/TokenWarningModal'
+import TradePrice from '../../../components/swap/TradePrice'
+import confirmPriceImpactWithoutFee from '../../../components/swap/confirmPriceImpactWithoutFee'
+import { maxAmountSpend } from '../../../utils/maxAmountSpend'
+import { useActiveWeb3React } from '../../../hooks'
+import { useCurrency } from '../../../hooks/Tokens'
+import useENSAddress from '../../../hooks/useENSAddress'
+import { useSwapCallback } from '../../../hooks/useSwapCallback'
 
 const CHAIN_LABELS: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: 'ETH',
-  [ChainId.FUJI]: 'AVAX',
+  [ChainId.FUJI]: 'AVAX'
 }
 
-const SUPPORTED_CHAINS = [
-  'ETH',
-  'AVAX',
-]
+const SUPPORTED_CHAINS = ['ETH', 'AVAX']
 
-export default function Swap() {
+export default function CrossChain() {
   const loadedUrlParams = useDefaultsFromURLSearch()
 
   // token warning stuff
@@ -280,16 +277,18 @@ export default function Swap() {
   // swaps or cross chain
   const [isCrossChain, setIsCrossChain] = useState<boolean>(false)
   const handleSetIsCrossChain = (bool: boolean) => {
-    setIsCrossChain(bool);
+    setIsCrossChain(bool)
   }
-  const [ transferTo ] = useState( SUPPORTED_CHAINS.find((x) => {
-    let ch = chainId ? CHAIN_LABELS[chainId] : 'ETH';
-    return x !== ch;
-  }));
+  const [transferTo] = useState(
+    SUPPORTED_CHAINS.find(x => {
+      const ch = chainId ? CHAIN_LABELS[chainId] : 'ETH'
+      return x !== ch
+    })
+  )
 
   // token transfer
   const handleTokenTransfer = () => {
-    alert('handle token transfer');
+    alert('handle token transfer')
   }
 
   return (
@@ -320,7 +319,7 @@ export default function Swap() {
           <BlockchainSelector
             isCrossChain={isCrossChain}
             supportedChains={SUPPORTED_CHAINS}
-            blockchain={ chainId ? CHAIN_LABELS[chainId] : 'ETH'}
+            blockchain={chainId ? CHAIN_LABELS[chainId] : 'ETH'}
             transferTo={transferTo}
           />
 
@@ -362,11 +361,11 @@ export default function Swap() {
             </AutoColumn>
             <CurrencyInputPanel
               blockchain={'Avalanche'}
-              value={ isCrossChain ? formattedAmounts[Field.INPUT] : formattedAmounts[Field.OUTPUT]}
+              value={isCrossChain ? formattedAmounts[Field.INPUT] : formattedAmounts[Field.OUTPUT]}
               onUserInput={handleTypeOutput}
               label={'To'}
               showMaxButton={false}
-              currency={ isCrossChain ? currencies[Field.INPUT] : currencies[Field.OUTPUT]}
+              currency={isCrossChain ? currencies[Field.INPUT] : currencies[Field.OUTPUT]}
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}
               isCrossChain={isCrossChain}
@@ -389,44 +388,42 @@ export default function Swap() {
 
             {showWrap ? null : (
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
-                { !isCrossChain &&
-                <AutoColumn gap="4px">
-                  {Boolean(trade) && (
-                    <RowBetween align="center">
-                      <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                        Price
-                      </Text>
-                      <TradePrice
-                        price={trade?.executionPrice}
-                        showInverted={showInverted}
-                        setShowInverted={setShowInverted}
-                      />
-                    </RowBetween>
-                  )}
-                  {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
-                    <RowBetween align="center">
-                      <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
-                        Slippage Tolerance
-                      </ClickableText>
-                      <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
-                        {allowedSlippage / 100}%
-                      </ClickableText>
-                    </RowBetween>
-                  )}
-                </AutoColumn>
-              }
+                {!isCrossChain && (
+                  <AutoColumn gap="4px">
+                    {Boolean(trade) && (
+                      <RowBetween align="center">
+                        <Text fontWeight={500} fontSize={14} color={theme.text2}>
+                          Price
+                        </Text>
+                        <TradePrice
+                          price={trade?.executionPrice}
+                          showInverted={showInverted}
+                          setShowInverted={setShowInverted}
+                        />
+                      </RowBetween>
+                    )}
+                    {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
+                      <RowBetween align="center">
+                        <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
+                          Slippage Tolerance
+                        </ClickableText>
+                        <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
+                          {allowedSlippage / 100}%
+                        </ClickableText>
+                      </RowBetween>
+                    )}
+                  </AutoColumn>
+                )}
               </Card>
             )}
           </AutoColumn>
           <BottomGrouping>
-            { isCrossChain && typedValue.length > 0 ? (
+            {isCrossChain && typedValue.length > 0 ? (
               <>
-                <p style={{ display: 'block', textAlign: 'center', color: '#F3841E', marginBottom: '1rem'}}>
+                <p style={{ display: 'block', textAlign: 'center', color: '#F3841E', marginBottom: '1rem' }}>
                   Transferring tokens from {currencies[Field.INPUT]?.symbol} to {transferTo}
                 </p>
-                <ButtonPrimary onClick={handleTokenTransfer}>
-                  Transfer Tokens
-                </ButtonPrimary>
+                <ButtonPrimary onClick={handleTokenTransfer}>Transfer Tokens</ButtonPrimary>
               </>
             ) : !account ? (
               <ButtonLight onClick={toggleWalletModal}>Connect Wallet</ButtonLight>
@@ -528,7 +525,7 @@ export default function Swap() {
           </BottomGrouping>
         </Wrapper>
       </AppBody>
-      { !isCrossChain && <AdvancedSwapDetailsDropdown trade={trade} />}
+      {!isCrossChain && <AdvancedSwapDetailsDropdown trade={trade} />}
     </>
   )
 }
