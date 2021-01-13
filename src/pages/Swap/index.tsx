@@ -50,13 +50,10 @@ import { useSwapCallback } from '../../hooks/useSwapCallback'
 
 const CHAIN_LABELS: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: 'ETH',
-  [ChainId.FUJI]: 'AVAX',
+  [ChainId.FUJI]: 'AVAX'
 }
 
-const SUPPORTED_CHAINS = [
-  'ETH',
-  'AVAX',
-]
+const SUPPORTED_CHAINS = ['ETH', 'AVAX']
 
 export default function Swap() {
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -280,16 +277,18 @@ export default function Swap() {
   // swaps or cross chain
   const [isCrossChain, setIsCrossChain] = useState<boolean>(false)
   const handleSetIsCrossChain = (bool: boolean) => {
-    setIsCrossChain(bool);
+    setIsCrossChain(bool)
   }
-  const [ transferTo ] = useState( SUPPORTED_CHAINS.find((x) => {
-    let ch = chainId ? CHAIN_LABELS[chainId] : 'ETH';
-    return x !== ch;
-  }));
+  const [transferTo] = useState(
+    SUPPORTED_CHAINS.find(x => {
+      const ch = chainId ? CHAIN_LABELS[chainId] : 'ETH'
+      return x !== ch
+    })
+  )
 
   // token transfer
   const handleTokenTransfer = () => {
-    alert('handle token transfer');
+    alert('handle token transfer')
   }
 
   return (
@@ -320,7 +319,7 @@ export default function Swap() {
           <BlockchainSelector
             isCrossChain={isCrossChain}
             supportedChains={SUPPORTED_CHAINS}
-            blockchain={ chainId ? CHAIN_LABELS[chainId] : 'ETH'}
+            blockchain={chainId ? CHAIN_LABELS[chainId] : 'ETH'}
             transferTo={transferTo}
           />
 
@@ -362,11 +361,11 @@ export default function Swap() {
             </AutoColumn>
             <CurrencyInputPanel
               blockchain={'Avalanche'}
-              value={ isCrossChain ? formattedAmounts[Field.INPUT] : formattedAmounts[Field.OUTPUT]}
+              value={isCrossChain ? formattedAmounts[Field.INPUT] : formattedAmounts[Field.OUTPUT]}
               onUserInput={handleTypeOutput}
               label={'To'}
               showMaxButton={false}
-              currency={ isCrossChain ? currencies[Field.INPUT] : currencies[Field.OUTPUT]}
+              currency={isCrossChain ? currencies[Field.INPUT] : currencies[Field.OUTPUT]}
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}
               isCrossChain={isCrossChain}
@@ -389,44 +388,42 @@ export default function Swap() {
 
             {showWrap ? null : (
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
-                { !isCrossChain &&
-                <AutoColumn gap="4px">
-                  {Boolean(trade) && (
-                    <RowBetween align="center">
-                      <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                        Price
-                      </Text>
-                      <TradePrice
-                        price={trade?.executionPrice}
-                        showInverted={showInverted}
-                        setShowInverted={setShowInverted}
-                      />
-                    </RowBetween>
-                  )}
-                  {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
-                    <RowBetween align="center">
-                      <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
-                        Slippage Tolerance
-                      </ClickableText>
-                      <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
-                        {allowedSlippage / 100}%
-                      </ClickableText>
-                    </RowBetween>
-                  )}
-                </AutoColumn>
-              }
+                {!isCrossChain && (
+                  <AutoColumn gap="4px">
+                    {Boolean(trade) && (
+                      <RowBetween align="center">
+                        <Text fontWeight={500} fontSize={14} color={theme.text2}>
+                          Price
+                        </Text>
+                        <TradePrice
+                          price={trade?.executionPrice}
+                          showInverted={showInverted}
+                          setShowInverted={setShowInverted}
+                        />
+                      </RowBetween>
+                    )}
+                    {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
+                      <RowBetween align="center">
+                        <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
+                          Slippage Tolerance
+                        </ClickableText>
+                        <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
+                          {allowedSlippage / 100}%
+                        </ClickableText>
+                      </RowBetween>
+                    )}
+                  </AutoColumn>
+                )}
               </Card>
             )}
           </AutoColumn>
           <BottomGrouping>
-            { isCrossChain && typedValue.length > 0 ? (
+            {isCrossChain && typedValue.length > 0 ? (
               <>
-                <p style={{ display: 'block', textAlign: 'center', color: '#F3841E', marginBottom: '1rem'}}>
+                <p style={{ display: 'block', textAlign: 'center', color: '#F3841E', marginBottom: '1rem' }}>
                   Transferring tokens from {currencies[Field.INPUT]?.symbol} to {transferTo}
                 </p>
-                <ButtonPrimary onClick={handleTokenTransfer}>
-                  Transfer Tokens
-                </ButtonPrimary>
+                <ButtonPrimary onClick={handleTokenTransfer}>Transfer Tokens</ButtonPrimary>
               </>
             ) : !account ? (
               <ButtonLight onClick={toggleWalletModal}>Connect Wallet</ButtonLight>
@@ -528,7 +525,7 @@ export default function Swap() {
           </BottomGrouping>
         </Wrapper>
       </AppBody>
-      { !isCrossChain && <AdvancedSwapDetailsDropdown trade={trade} />}
+      {!isCrossChain && <AdvancedSwapDetailsDropdown trade={trade} />}
     </>
   )
 }
