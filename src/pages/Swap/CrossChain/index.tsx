@@ -44,12 +44,35 @@ import { useCurrency } from '../../../hooks/Tokens'
 import useENSAddress from '../../../hooks/useENSAddress'
 import { useSwapCallback } from '../../../hooks/useSwapCallback'
 
+import { CssBaseline, ToasterProvider } from '@chainsafe/common-components'
+import { ErrorBoundary, init, showReportDialog } from '@sentry/react'
+
+import { ChainbridgeProvider } from '../../Chainbridge/Contexts/ChainbridgeContext'
+import { ThemeSwitcher } from '@chainsafe/common-theme'
+import TransferPage from '../../Chainbridge/Components/Pages/TransferPage'
+import { Web3Provider } from '../../Chainbridge/Web3Context'
+import { chainbridgeConfig } from '../../Chainbridge/chainbridgeConfig'
+import { lightTheme } from '../../Chainbridge/Themes/LightTheme'
+import { utils } from 'ethers'
+import '../../Chainbridge/styles.scss'
+
 const CHAIN_LABELS: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: 'ETH',
   [ChainId.FUJI]: 'AVAX'
 }
 
 const SUPPORTED_CHAINS = ['ETH', 'AVAX']
+
+if (
+  process.env.NODE_ENV === 'production' &&
+  process.env.REACT_APP_SENTRY_DSN_URL &&
+  process.env.REACT_APP_SENTRY_RELEASE
+) {
+  init({
+    dsn: process.env.REACT_APP_SENTRY_DSN_URL,
+    release: process.env.REACT_APP_SENTRY_RELEASE
+  })
+}
 
 export default function CrossChain() {
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -278,6 +301,13 @@ export default function CrossChain() {
     alert('handle token transfer')
   }
 
+  const tokens = chainbridgeConfig.chains.reduce((tca, bc) => {
+    return {
+      ...tca,
+      [bc.networkId]: bc.tokens
+    }
+  }, {})
+
   return (
     <>
       <TokenWarningModal
@@ -476,6 +506,52 @@ export default function CrossChain() {
           </BottomGrouping>
         </Wrapper>
       </AppBody>
+
+      <ErrorBoundary
+        fallback={({ error, componentStack, eventId, resetError }) => (
+          <div>
+            <p>
+              An error occurred and has been logged. If you would like to provide
+              additional info to help us debug and resolve the issue, click the
+              "Provide Additional Details" button
+            </p>
+            <p>{error?.message.toString()}</p>
+            <p>{componentStack}</p>
+            <p>{eventId}</p>
+            <button onClick={() => showReportDialog({ eventId: eventId || '' })}>
+              Provide Additional Details
+            </button>
+            <button onClick={resetError}>Reset error</button>
+          </div>
+        )}
+        onReset={() => window.location.reload()}
+      >
+        <ThemeSwitcher themes={{ light: lightTheme }}>
+          <CssBaseline/>
+          <ToasterProvider autoDismiss>
+            <Web3Provider
+              tokensToWatch={tokens}
+              onboardConfig={{
+                walletSelect: {
+                  wallets: [{ walletName: 'metamask', preferred: true }]
+                },
+                subscriptions: {
+                  network: (network) => console.log('chainId: ', network),
+                  balance: (amount) =>
+                    console.log('balance: ', utils.formatEther(amount))
+                }
+              }}
+              checkNetwork={false}
+              gasPricePollingInterval={120}
+              gasPriceSetting="fast"
+            >
+              <ChainbridgeProvider>
+                <TransferPage></TransferPage>
+              </ChainbridgeProvider>
+            </Web3Provider>
+          </ToasterProvider>
+        </ThemeSwitcher>
+      </ErrorBoundary>
     </>
   )
 }
