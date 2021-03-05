@@ -55,11 +55,9 @@ export default function CurrencyLogo({
       // find logos on ETH address for non-ETH assets
       let logoAddress = currency.address;
       let allConfigTokens: any = [];
-      crosschainConfig.chains.map(chain => {
-        chain.tokens.map(token => {
-          allConfigTokens.push(token);
-        })
-      })
+      crosschainConfig.chains.map(chain => 
+        chain.tokens.map(token => allConfigTokens.push(token))
+      )
       let chosenToken = allConfigTokens.find((token: any) => token.address === currency.address);
       let ethToken = crosschainConfig.chains[0].tokens.find((token: any) => token?.assetBase === chosenToken?.assetBase);
       if (ethToken) {

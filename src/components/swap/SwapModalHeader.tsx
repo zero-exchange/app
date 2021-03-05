@@ -33,6 +33,8 @@ export default function SwapModalHeader({
     trade,
     allowedSlippage
   ])
+  
+  // eslint-disable-next-line 
   const { priceImpactWithoutFee } = useMemo(() => computeTradePriceBreakdown(trade, chainId), [trade])
   const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
 

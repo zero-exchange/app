@@ -1,5 +1,5 @@
-import { BarChart, Book, DollarSign, Menu as MenuIcon, RefreshCw } from 'react-feather'
-import { ExternalLink, TYPE } from '../../theme'
+import { BarChart, Book, DollarSign, RefreshCw } from 'react-feather'
+import { ExternalLink } from '../../theme'
 import Row, { RowFixed } from '../Row'
 
 // import AvaxLogo from '../../assets/images/avax-logo.png'

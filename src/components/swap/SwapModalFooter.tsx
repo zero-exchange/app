@@ -40,6 +40,8 @@ export default function SwapModalFooter({
     allowedSlippage,
     trade
   ])
+
+  // eslint-disable-next-line 
   const { priceImpactWithoutFee, realizedLPFee } = useMemo(() => computeTradePriceBreakdown(trade, chainId), [trade])
   const severity = warningSeverity(priceImpactWithoutFee)
 

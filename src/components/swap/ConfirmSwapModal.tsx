@@ -66,6 +66,7 @@ export default function ConfirmSwapModal({
         chainId={chainId}
       />
     ) : null
+    // eslint-disable-next-line
   }, [allowedSlippage, onAcceptChanges, recipient, showAcceptChanges, trade])
 
   const modalBottom = useCallback(() => {
@@ -79,6 +80,7 @@ export default function ConfirmSwapModal({
         chainId={chainId}
       />
     ) : null
+    // eslint-disable-next-line
   }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade])
 
   // text to show while loading

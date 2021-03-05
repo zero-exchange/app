@@ -13,7 +13,7 @@ import {
   setTransferAmount
 } from '../../state/crosschain/actions'
 import Column, { AutoColumn } from '../../components/Column'
-import { Field, selectCurrency } from '../../state/swap/actions'
+import { Field } from '../../state/swap/actions'
 import { GetTokenByAddress, useCrossChain, useCrosschainHooks, useCrosschainState } from '../../state/crosschain/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -55,7 +55,6 @@ import { Text } from 'rebass'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import TradePrice from '../../components/swap/TradePrice'
 import confirmPriceImpactWithoutFee from '../../components/swap/confirmPriceImpactWithoutFee'
-import { getTradeVersion } from '../../data/V1'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -133,7 +132,6 @@ export default function Swap() {
   const {
     currentTxID,
     availableChains,
-    availableTokens,
     currentChain,
     currentToken,
     transferAmount,
@@ -312,6 +310,7 @@ export default function Swap() {
           txHash: undefined
         })
       })
+      // eslint-disable-next-line
   }, [tradeToConfirm, account, priceImpactWithoutFee, recipient, recipientAddress, showConfirm, swapCallback, trade])
 
   // errors
