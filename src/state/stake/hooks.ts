@@ -45,8 +45,7 @@ export const STAKING_REWARDS_INFO: {
       tokens: [WETH[ChainId.FUJI], MOCK1],
       stakingRewardAddress: '0x1F6271FedF344724DBd489ee4963f05AF8a0970c'
     }
-  ],
-  [ChainId.AVALANCHE]: []
+  ]
 }
 
 export interface StakingInfo {
@@ -83,7 +82,6 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
 
   // detect if staking is ended
   const currentBlockTimestamp = useCurrentBlockTimestamp()
-
   const info = useMemo(
     () =>
       chainId
