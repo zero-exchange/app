@@ -1,4 +1,4 @@
-import { AVAX, ETHER, JSBI, Pair, TokenAmount } from '@zeroexchange/sdk'
+import { AVAX, BNB, ETHER, JSBI, Pair, TokenAmount } from '@zeroexchange/sdk'
 import { BIG_INT_SECONDS_IN_WEEK, BIG_INT_ZERO } from '../../constants'
 import { CardBGImage, CardNoise, CardSection, DataCard } from '../../components/earn/styled'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
@@ -159,8 +159,8 @@ export default function Manage({
   // fade cards if nothing staked or nothing earned yet
   const disableTop = !stakingInfo?.stakedAmount || stakingInfo.stakedAmount.equalTo(JSBI.BigInt(0))
 
-  const token = (currencyA === ETHER || currencyA === AVAX) ? tokenB : tokenA
-  const WETH = (currencyA === ETHER || currencyA === AVAX) ? tokenA : tokenB
+  const token = currencyA === ETHER || currencyA === AVAX || currencyA === BNB ? tokenB : tokenA
+  const WETH = currencyA === ETHER || currencyA === AVAX || currencyA === BNB ? tokenA : tokenB
   const backgroundColor = useColor(token)
 
   // get WETH value of staked LP tokens
@@ -207,7 +207,6 @@ export default function Manage({
     [trackedTokenPairs]
   )
 
-
   const liquidityTokens = useMemo(() => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityToken), [
     tokenPairsWithLiquidityTokens
   ])
@@ -248,8 +247,10 @@ export default function Manage({
   // })
 
   const showMe = (pair: any) => {
-    return pair?.token0?.symbol === stakingTokenPair?.token0?.symbol &&
-           pair?.token1?.symbol === stakingTokenPair?.token1?.symbol
+    return (
+      pair?.token0?.symbol === stakingTokenPair?.token0?.symbol &&
+      pair?.token1?.symbol === stakingTokenPair?.token1?.symbol
+    )
   }
 
   const symbol = WETH?.symbol
@@ -318,7 +319,7 @@ export default function Manage({
         </VoteCard>
       )}
 
-      {!showAddLiquidityButton && stakingInfo &&
+      {!showAddLiquidityButton && stakingInfo && (
         <ButtonPrimary
           padding="8px"
           borderRadius="8px"
@@ -328,7 +329,7 @@ export default function Manage({
         >
           {`Add more ${currencyA?.symbol}/${currencyB?.symbol} liquidity`}
         </ButtonPrimary>
-      }
+      )}
 
       {stakingInfo && (
         <>
@@ -444,7 +445,8 @@ export default function Manage({
           <>
             {stakingPairs.map(
               (stakingPair, i) =>
-                stakingPair[1] && showMe(stakingPair[1]) && (
+                stakingPair[1] &&
+                showMe(stakingPair[1]) && (
                   <FullPositionCard
                     key={stakingInfosWithBalance[i].stakingRewardAddress}
                     pair={stakingPair[1]}

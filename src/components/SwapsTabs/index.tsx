@@ -48,6 +48,10 @@ const SwapsTabs = ({
         Cross-Chain Transfer
         <ChevronsRight size="14" style={{ marginLeft: '4px' }} />
       </Tab>
+      {/*<Tab active={isCrossChain ? true : false} style={{ opacity: '.5', pointerEvents: 'none' }}>
+        Transfer (Maintenance)
+        <ChevronsRight size="14" style={{ marginLeft: '4px' }} />
+      </Tab>*/}
     </TabsContainer>
   )
 }

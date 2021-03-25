@@ -1,4 +1,4 @@
-import { BarChart, Book, DollarSign, RefreshCw } from 'react-feather'
+import { BarChart, Book, CreditCard, DollarSign, RefreshCw } from 'react-feather'
 import { ExternalLink } from '../../theme'
 import Row, { RowFixed } from '../Row'
 
@@ -96,11 +96,17 @@ const HeaderRow = styled(RowFixed)`
 const HeaderExternalLink = styled(ExternalLink)`
   margin: 0 16px;
   font-size: 1rem;
-  color: #C3C5CB;
+  color: #c3c5cb;
+  transition: all .2s ease-in-out;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin: 0 6px;
     font-size: .85rem;
   `};
+  :hover,
+  :focus {
+    color: ${({ theme }) => theme.primary1};
+    text-decoration: none;
+  }
 `
 
 const HeaderLinks = styled(Row)`
@@ -222,7 +228,7 @@ const StyledNavLink = styled(NavLink).attrs({
   width: fit-content;
   margin: 0 16px;
   font-weight: 500;
-  transition: all .2s ease-in-out;
+  transition: all 0.2s ease-in-out;
   &.${activeClassName} {
     border-radius: 12px;
     font-weight: 600;
@@ -246,6 +252,7 @@ const NETWORK_LABELS: { [chainId in ChainId]?: string } = {
   [ChainId.KOVAN]: 'Kovan',
   [ChainId.FUJI]: 'Avalanche',
   [ChainId.AVALANCHE]: 'Avalanche',
+  [ChainId.SMART_CHAIN]: 'SmartChain',
   [ChainId.MAINNET]: 'Ethereum'
 }
 
@@ -255,21 +262,22 @@ const NETWORK_SYMBOLS: any = {
   Ropsten: 'ETH',
   Görli: 'ETH',
   Kovan: 'ETH',
-  Avalanche: 'AVAX'
+  Avalanche: 'AVAX',
+  SmartChain: 'BNB'
 }
 
 export default function Header() {
-
   const { account, chainId } = useActiveWeb3React()
   const { t } = useTranslation()
 
   const userEthBalance = useETHBalances(account ? [account] : [], chainId)?.[account ?? '']
   const [isDark] = useDarkModeManager()
 
-  let label, symbol = '';
+  let label,
+    symbol = ''
   if (chainId) {
-    label = NETWORK_LABELS[chainId];
-    symbol = NETWORK_SYMBOLS[label || 'Ethereum'];
+    label = NETWORK_LABELS[chainId]
+    symbol = NETWORK_SYMBOLS[label || 'Ethereum']
   }
 
   return (
@@ -284,20 +292,24 @@ export default function Header() {
         <HeaderLinks>
           <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
             <RefreshCw size={16} style={{ marginRight: '4px', marginTop: '2px' }} />
-            {t('swap')}
+            {t('Swap')}
           </StyledNavLink>
           <StyledNavLink id={`earn-nav-link`} to={'/earn'}>
             <DollarSign size={16} style={{ marginRight: '4px', marginTop: '2px' }} />
             {t('Earn')}
           </StyledNavLink>
+          <HeaderExternalLink href={`https://buy.zero.exchange`}>
+            <CreditCard size={16} style={{ marginRight: '4px', marginTop: '2px', marginBottom: '-3px' }} />
+            Buy Zero
+          </HeaderExternalLink>
           <HeaderExternalLink href={`https://charts.zero.exchange`}>
-            <BarChart size={16} style={{ marginRight: '4px', marginTop: '2px' }} />
+            <BarChart size={16} style={{ marginRight: '4px', marginTop: '2px', marginBottom: '-3px' }} />
             Charts
           </HeaderExternalLink>
-          <StyledNavLink id={`guides-nav-link`} to={'/guides'}>
-            <Book size={16} style={{ marginRight: '4px', marginTop: '2px' }} />
-            {t('Guides')}
-          </StyledNavLink>
+          <HeaderExternalLink href={`https://zero-exchange.gitbook.io/zero-exchange-docs/`}>
+            <Book size={16} style={{ marginRight: '4px', marginTop: '2px', marginBottom: '-2px' }} />
+            Guides
+          </HeaderExternalLink>
         </HeaderLinks>
       </HeaderRow>
       {/*<CurrentChain>
