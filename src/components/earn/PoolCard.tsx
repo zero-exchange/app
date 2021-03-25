@@ -2,8 +2,8 @@ import { AVAX, ChainId, ETHER, JSBI, TokenAmount } from '@zeroexchange/sdk'
 import { Break, CardBGImage, CardNoise } from './styled'
 import { ButtonPrimary, ButtonWhiteBg } from '../Button'
 import { ExternalLink, StyledInternalLink, TYPE } from '../../theme'
-import React, { useState } from 'react'
-import { useTokenBalance, useTokenBalancesWithLoadingIndicator } from '../../state/wallet/hooks'
+import React from 'react'
+// import { useTokenBalance } from '../../state/wallet/hooks'
 
 import { AutoColumn } from '../Column'
 import { BIG_INT_SECONDS_IN_WEEK } from '../../constants'
@@ -75,7 +75,7 @@ const BottomSection = styled.div<{ showBackground: boolean }>`
 `
 
 export default function PoolCard({ stakingInfoTop }: { stakingInfoTop: StakingInfo }) {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const token0 = stakingInfoTop.tokens[0]
   const token1 = stakingInfoTop.tokens[1]
@@ -93,16 +93,16 @@ export default function PoolCard({ stakingInfoTop }: { stakingInfoTop: StakingIn
   const isStaking = Boolean(stakingInfo?.stakedAmount?.greaterThan('0'))
 
   // detect existing unstaked LP position to show add button if none found
-  const userLiquidityUnstaked = useTokenBalance(account ?? undefined, stakingInfo?.stakedAmount?.token)
-  const showAddLiquidityButton = Boolean(stakingInfo?.stakedAmount?.equalTo('0') && userLiquidityUnstaked?.equalTo('0'))
+  // const userLiquidityUnstaked = useTokenBalance(account ?? undefined, stakingInfo?.stakedAmount?.token)
+  // const showAddLiquidityButton = Boolean(stakingInfo?.stakedAmount?.equalTo('0') && userLiquidityUnstaked?.equalTo('0'))
 
-  // toggle for staking modal and unstaking modal
-  const [showStakingModal, setShowStakingModal] = useState(false)
-  const [showUnstakingModal, setShowUnstakingModal] = useState(false)
-  const [showClaimRewardModal, setShowClaimRewardModal] = useState(false)
+  // // toggle for staking modal and unstaking modal
+  // const [showStakingModal, setShowStakingModal] = useState(false)
+  // const [showUnstakingModal, setShowUnstakingModal] = useState(false)
+  // const [showClaimRewardModal, setShowClaimRewardModal] = useState(false)
 
-  // fade cards if nothing staked or nothing earned yet
-  const disableTop = !stakingInfo?.stakedAmount || stakingInfo.stakedAmount.equalTo(JSBI.BigInt(0))
+  // // fade cards if nothing staked or nothing earned yet
+  // const disableTop = !stakingInfo?.stakedAmount || stakingInfo.stakedAmount.equalTo(JSBI.BigInt(0))
 
   const token = currencyA === ETHER || currencyA === AVAX ? tokenB : tokenA
   const WETH = currencyA === ETHER || currencyA === AVAX ? tokenA : tokenB

@@ -45,6 +45,7 @@ export function useETHBalances(
         if (value) memo[address] = CurrencyAmount.ether(JSBI.BigInt(value.toString()), chainId)
         return memo
       }, {}),
+      // eslint-disable-next-line
     [addresses, results]
   )
 }

@@ -1,5 +1,5 @@
 import { AutoRow, RowBetween } from '../Row'
-import { ChainId, Token } from '@zeroexchange/sdk'
+import { Token } from '@zeroexchange/sdk'
 import { ExternalLink, TYPE } from '../../theme'
 import React, { useCallback, useMemo, useState } from 'react'
 import { getEtherscanLink, shortenAddress } from '../../utils'
@@ -48,7 +48,7 @@ function TokenWarningCard({ token }: TokenWarningCardProps) {
   const allTokens = useAllTokens()
 
   const duplicateNameOrSymbol = useMemo(() => {
-    if (!token || chainId == undefined) return false
+    if (!token || chainId === undefined) return false
 
     return Object.keys(allTokens).some(tokenAddress => {
       const userToken = allTokens[tokenAddress]

@@ -1,4 +1,4 @@
-import { AVAX, ChainId, JSBI, Percent, Token, WETH } from '@zeroexchange/sdk'
+import { ChainId, JSBI, Percent, Token, WETH } from '@zeroexchange/sdk'
 import { fortmatic, injected, portis, walletconnect, walletlink } from '../connectors'
 
 import { AbstractConnector } from '@web3-react/abstract-connector'

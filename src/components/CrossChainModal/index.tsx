@@ -1,5 +1,4 @@
 import BlockchainLogo from '../BlockchainLogo'
-import { CHAIN_LABELS } from '../../constants'
 import { CrosschainChain } from '../../state/crosschain/actions'
 import Modal from '../Modal'
 import React from 'react'

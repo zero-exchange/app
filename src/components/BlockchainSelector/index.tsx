@@ -67,7 +67,7 @@ const BlockchainSelector = ({
 }) => {
   useEffect(() => {
     onSetTransferTo(transferTo?.name)
-  }, [transferTo])
+  }, [transferTo, onSetTransferTo])
 
   const openChangeChainInfo = () => {
     onShowCrossChainModal()

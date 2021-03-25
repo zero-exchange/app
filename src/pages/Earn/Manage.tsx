@@ -1,4 +1,4 @@
-import { AVAX, BNB, ChainId, ETHER, JSBI, Pair, TokenAmount } from '@zeroexchange/sdk'
+import { AVAX, BNB, ETHER, JSBI, Pair, TokenAmount } from '@zeroexchange/sdk'
 import { BIG_INT_SECONDS_IN_WEEK, BIG_INT_ZERO } from '../../constants'
 import { CardBGImage, CardNoise, CardSection, DataCard } from '../../components/earn/styled'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
@@ -24,7 +24,6 @@ import { currencyId } from '../../utils/currencyId'
 import { useActiveWeb3React } from '../../hooks'
 import { useColor } from '../../hooks/useColor'
 import { useCurrency } from '../../hooks/Tokens'
-import { useHistory } from 'react-router'
 import { usePair } from '../../data/Reserves'
 import { usePairs } from '../../data/Reserves'
 import usePrevious from '../../hooks/usePrevious'
@@ -140,7 +139,6 @@ export default function Manage({
   const { account, chainId } = useActiveWeb3React()
 
   const theme = useContext(ThemeContext)
-  const history = useHistory()
   // get currencies and pair
   const [currencyA, currencyB] = [useCurrency(currencyIdA), useCurrency(currencyIdB)]
   const tokenA = wrappedCurrency(currencyA ?? undefined, chainId)
@@ -240,13 +238,13 @@ export default function Manage({
   const stakingPairs = usePairs(stakingInfosWithBalance?.map(stakingInfo => stakingInfo.tokens))
 
   // remove any pairs that also are included in pairs with stake in mining pool
-  const v2PairsWithoutStakedAmount = allV2PairsWithLiquidity.filter(v2Pair => {
-    return (
-      stakingPairs
-        ?.map(stakingPair => stakingPair[1])
-        .filter(stakingPair => stakingPair?.liquidityToken.address === v2Pair.liquidityToken.address).length === 0
-    )
-  })
+  // const v2PairsWithoutStakedAmount = allV2PairsWithLiquidity.filter(v2Pair => {
+  //   return (
+  //     stakingPairs
+  //       ?.map(stakingPair => stakingPair[1])
+  //       .filter(stakingPair => stakingPair?.liquidityToken.address === v2Pair.liquidityToken.address).length === 0
+  //   )
+  // })
 
   const showMe = (pair: any) => {
     return (

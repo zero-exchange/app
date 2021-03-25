@@ -122,6 +122,7 @@ export default function Earn() {
         otherAddress: '0xe9e7cea3dedca5984780bafc599bd69add087d56',
       },
     ]
+    // eslint-disable-next-line
   };
 
   // staking info for connected account
@@ -132,6 +133,7 @@ export default function Earn() {
    */
   const stakingInfosWithBalance = stakingInfos
   let timeToStakingFinish = stakingInfos?.[0]?.periodFinish
+  // eslint-disable-next-line
   stakingInfos.map(item => {
     const period = item ? item.periodFinish : timeToStakingFinish
     if (period && item.active && timeToStakingFinish && timeToStakingFinish < period) {

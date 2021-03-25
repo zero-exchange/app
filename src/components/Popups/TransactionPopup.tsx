@@ -4,7 +4,6 @@ import styled, { ThemeContext } from 'styled-components'
 
 import { AutoColumn } from '../Column'
 import { AutoRow } from '../Row'
-import { ChainId } from '@zeroexchange/sdk'
 import { ExternalLink } from '../../theme/components'
 import { TYPE } from '../../theme'
 import { getEtherscanLink } from '../../utils'

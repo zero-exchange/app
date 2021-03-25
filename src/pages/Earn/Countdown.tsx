@@ -1,7 +1,6 @@
 import { REWARDS_DURATION_DAYS_CHAINS, STAKING_GENESIS_CHAINS } from '../../state/stake/hooks'
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { ChainId } from '@zeroexchange/sdk'
 import { TYPE } from '../../theme'
 import { useActiveWeb3React } from '../../hooks'
 import { CHAIN_LABELS } from '../../constants'
@@ -10,6 +9,7 @@ const MINUTE = 60
 const HOUR = MINUTE * 60
 const DAY = HOUR * 24
 let REWARDS_DURATION = 0;
+// eslint-disable-next-line
 let STAKING_GENESIS = 0;
 
 
