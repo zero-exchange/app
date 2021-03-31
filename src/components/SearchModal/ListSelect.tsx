@@ -151,7 +151,8 @@ const ListRow = memo(function ListRow({ listUrl, onBack }: { listUrl: string; on
           }}
         >
           <StyledListUrlText title={listUrl}>
-            <ListOrigin listUrl={listUrl} />
+            {/* <ListOrigin listUrl={listUrl} /> */}
+            {list.tokens.length} tokens
           </StyledListUrlText>
         </Row>
       </Column>
