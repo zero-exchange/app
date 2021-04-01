@@ -171,7 +171,6 @@ export function CurrencySearch({
        
          
       });
-      console.log('indexc :>> ', index);
       if(index === -1) {
         const newToken = new Token( token.chainId,  token.address, token.decimals, token.symbol, token.name )
         filteredSortedTokens.push(newToken)
