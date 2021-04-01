@@ -24,6 +24,7 @@ import { useSelectedListInfo } from '../../state/lists/hooks'
 import { useToken } from '../../hooks/Tokens'
 import { useTokenComparator } from './sorting'
 import { useTranslation } from 'react-i18next'
+import { TokenList } from '@uniswap/token-lists'
 
 interface CurrencySearchProps {
   isOpen: boolean
@@ -97,7 +98,7 @@ export function CurrencySearch({
     )
   }, [isAddressSearch, searchToken, searchQuery, defaultTokenList, chainId, availableTokensArray])
 
-  const filteredSortedTokens: Token[] = useMemo(() => {
+  let filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken]
     const sorted = filteredTokens.sort(tokenComparator)
     const symbolMatch = searchQuery
@@ -154,7 +155,33 @@ export function CurrencySearch({
     [filteredSortedTokens, handleCurrencySelect, searchQuery]
   )
 
-  const selectedListInfo = useSelectedListInfo()
+  let selectedListInfo = useSelectedListInfo()
+  if(selectedListInfo === undefined ) {
+    selectedListInfo = {} as { current: TokenList | null; pending: TokenList | null; loading: boolean; }
+  }
+  let newList = filteredSortedTokens;
+  if(selectedListInfo ) {
+     selectedListInfo?.current?.tokens?.map(token => {
+      const index = filteredSortedTokens.findIndex(function(tk, index) {
+        if(tk.address == token.address && chainId === token.chainId) {
+          return true;
+        } else {
+          return false;
+        }
+       
+         
+      });
+      console.log('indexc :>> ', index);
+      if(index === -1) {
+        const newToken = new Token( token.chainId,  token.address, token.decimals, token.symbol, token.name )
+        filteredSortedTokens.push(newToken)
+      }
+     
+      
+     })
+     filteredSortedTokens = filteredSortedTokens.filter(token => token.chainId !== chainId)
+     
+  }
 
   return (
     <Column style={{ width: '100%', flex: '1 1' }}>
@@ -197,7 +224,7 @@ export function CurrencySearch({
             <CurrencyList
               height={height}
               showETH={isCrossChain ? false : showETH}
-              currencies={!isCrossChain ? filteredSortedTokens : availableTokensArray}
+              currencies={!isCrossChain ? newList : availableTokensArray}
               onCurrencySelect={handleCurrencySelect}
               otherCurrency={otherSelectedCurrency}
               selectedCurrency={selectedCurrency}

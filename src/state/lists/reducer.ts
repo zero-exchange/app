@@ -1,9 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { getVersionUpgrade, VersionUpgrade } from '@uniswap/token-lists'
 import { TokenList } from '@uniswap/token-lists/dist/types'
-import { DEFAULT_LIST_OF_LISTS, DEFAULT_TOKEN_LIST_URL } from '../../constants/lists'
+import { DEFAULT_LIST_OF_LISTS, DEFAULT_TOKEN_LIST_URL, getListTokensByChain } from '../../constants/lists'
 import { updateVersion } from '../global/actions'
 import { acceptListUpdate, addList, fetchTokenList, removeList, selectList } from './actions'
+
 
 export interface ListsState {
   readonly byUrl: {
@@ -19,7 +20,14 @@ export interface ListsState {
   readonly selectedListUrl: string | undefined
 }
 
-type ListState = ListsState['byUrl'][string]
+const ls = localStorage.getItem('redux_localstorage_simple_crosschain')
+let nameCurrentMainCurrency = 'ETH'
+if(ls) {
+    nameCurrentMainCurrency = JSON.parse(ls).currentChain.symbol
+    getListTokensByChain(nameCurrentMainCurrency)
+}
+
+type ListState = ListsState['byUrl'][string] 
 
 const NEW_LIST_STATE: ListState = {
   error: null,
