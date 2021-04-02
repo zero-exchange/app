@@ -1,22 +1,25 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { getVersionUpgrade, VersionUpgrade } from '@uniswap/token-lists'
 import { TokenList } from '@uniswap/token-lists/dist/types'
-import { DEFAULT_LIST_OF_LISTS, DEFAULT_TOKEN_LIST_URL } from '../../constants/lists'
+import { getListTokensByChain, MAIN_CURRENCY, CHAIN_ID } from '../../constants/lists'
 import { updateVersion } from '../global/actions'
-import { acceptListUpdate, addList, fetchTokenList, removeList, selectList } from './actions'
+import { acceptListUpdate, addList, fetchTokenList, removeList, selectList, switchNewList } from './actions'
 
+const { DEFAULT_TOKEN_LIST_URL, DEFAULT_LIST_OF_LISTS } = getListTokensByChain(MAIN_CURRENCY, CHAIN_ID)
 export interface ListsState {
   readonly byUrl: {
     readonly [url: string]: {
       readonly current: TokenList | null
       readonly pendingUpdate: TokenList | null
       readonly loadingRequestId: string | null
-      readonly error: string | null
+      readonly error: string | null,
+      readonly firstCurrency: string | null
     }
   }
   // this contains the default list of lists from the last time the updateVersion was called, i.e. the app was reloaded
   readonly lastInitializedDefaultListOfLists?: string[]
   readonly selectedListUrl: string | undefined
+  readonly mainCurrency: string
 }
 
 type ListState = ListsState['byUrl'][string]
@@ -25,7 +28,8 @@ const NEW_LIST_STATE: ListState = {
   error: null,
   current: null,
   loadingRequestId: null,
-  pendingUpdate: null
+  pendingUpdate: null,
+  firstCurrency: null
 }
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] extends ReadonlyArray<infer U> ? U[] : T[P] }
@@ -38,7 +42,8 @@ const initialState: ListsState = {
       return memo
     }, {})
   },
-  selectedListUrl: DEFAULT_TOKEN_LIST_URL
+  selectedListUrl: DEFAULT_TOKEN_LIST_URL,
+  mainCurrency: MAIN_CURRENCY
 }
 
 export default createReducer(initialState, builder =>
@@ -49,7 +54,8 @@ export default createReducer(initialState, builder =>
         pendingUpdate: null,
         ...state.byUrl[url],
         loadingRequestId: requestId,
-        error: null
+        error: null,
+        firstCurrency: null
       }
     })
     .addCase(fetchTokenList.fulfilled, (state, { payload: { requestId, tokenList, url } }) => {
@@ -66,7 +72,8 @@ export default createReducer(initialState, builder =>
             loadingRequestId: null,
             error: null,
             current: current,
-            pendingUpdate: tokenList
+            pendingUpdate: tokenList,
+            firstCurrency: MAIN_CURRENCY
           }
         }
       } else {
@@ -75,7 +82,8 @@ export default createReducer(initialState, builder =>
           loadingRequestId: null,
           error: null,
           current: tokenList,
-          pendingUpdate: null
+          pendingUpdate: null,
+          firstCurrency: MAIN_CURRENCY
         }
       }
     })
@@ -90,7 +98,8 @@ export default createReducer(initialState, builder =>
         loadingRequestId: null,
         error: errorMessage,
         current: null,
-        pendingUpdate: null
+        pendingUpdate: null,
+        firstCurrency: null
       }
     })
     .addCase(selectList, (state, { payload: url }) => {
@@ -123,19 +132,40 @@ export default createReducer(initialState, builder =>
         current: state.byUrl[url].pendingUpdate
       }
     })
+    .addCase(switchNewList, (state, { payload: {newCurrency, chainNumber} }) => {
+      if (MAIN_CURRENCY !== newCurrency) {
+        const newList = getListTokensByChain(newCurrency, chainNumber)
+        //if(state.lastInitializedDefaultListOfLists) {     
+          const keys = Object.keys(state.byUrl)
+          keys.map( url => {
+                delete state.byUrl[url]
+          })
+          
+  //  }
+        
+        state.lastInitializedDefaultListOfLists = newList.DEFAULT_LIST_OF_LISTS
+        state.mainCurrency = newList.MAIN_CURRENCY
+        newList.DEFAULT_LIST_OF_LISTS.forEach(listUrl => {
+          state.byUrl[listUrl] = NEW_LIST_STATE
+        })
+      }
+    }
+
+    )
     .addCase(updateVersion, state => {
       // state loaded from localStorage, but new lists have never been initialized
+      const newList = getListTokensByChain(MAIN_CURRENCY, CHAIN_ID)
       if (!state.lastInitializedDefaultListOfLists) {
         state.byUrl = initialState.byUrl
-        state.selectedListUrl = DEFAULT_TOKEN_LIST_URL
+        state.selectedListUrl = newList.DEFAULT_TOKEN_LIST_URL
       } else if (state.lastInitializedDefaultListOfLists) {
         const lastInitializedSet = state.lastInitializedDefaultListOfLists.reduce<Set<string>>(
           (s, l) => s.add(l),
           new Set()
         )
-        const newListOfListsSet = DEFAULT_LIST_OF_LISTS.reduce<Set<string>>((s, l) => s.add(l), new Set())
+        const newListOfListsSet = newList.DEFAULT_LIST_OF_LISTS.reduce<Set<string>>((s, l) => s.add(l), new Set())
 
-        DEFAULT_LIST_OF_LISTS.forEach(listUrl => {
+        newList.DEFAULT_LIST_OF_LISTS.forEach(listUrl => {
           if (!lastInitializedSet.has(listUrl)) {
             state.byUrl[listUrl] = NEW_LIST_STATE
           }
@@ -148,12 +178,13 @@ export default createReducer(initialState, builder =>
         })
       }
 
-      state.lastInitializedDefaultListOfLists = DEFAULT_LIST_OF_LISTS
+      state.lastInitializedDefaultListOfLists = newList.DEFAULT_LIST_OF_LISTS
+      state.mainCurrency = newList.MAIN_CURRENCY
 
       if (!state.selectedListUrl) {
-        state.selectedListUrl = DEFAULT_TOKEN_LIST_URL
-        if (!state.byUrl[DEFAULT_TOKEN_LIST_URL]) {
-          state.byUrl[DEFAULT_TOKEN_LIST_URL] = NEW_LIST_STATE
+        state.selectedListUrl = newList.DEFAULT_TOKEN_LIST_URL
+        if (!state.byUrl[newList.DEFAULT_TOKEN_LIST_URL]) {
+          state.byUrl[newList.DEFAULT_TOKEN_LIST_URL] = NEW_LIST_STATE
         }
       }
     })

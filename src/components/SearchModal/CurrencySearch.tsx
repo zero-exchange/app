@@ -24,6 +24,7 @@ import { useSelectedListInfo } from '../../state/lists/hooks'
 import { useToken } from '../../hooks/Tokens'
 import { useTokenComparator } from './sorting'
 import { useTranslation } from 'react-i18next'
+import { TokenList } from '@uniswap/token-lists'
 
 interface CurrencySearchProps {
   isOpen: boolean
@@ -63,13 +64,13 @@ export function CurrencySearch({
   // ChainId.RINKEBY BUSD
   const availableTokensArray = isCrossChain
     ? availableTokens
-        .filter(a => a.name !== 'BUSD')
-        .map((x: any) => {
-          return new Token(x.chainId, x.address, x.decimals, x.symbol, x.name)
-        })
-    : availableTokens.map((x: any) => {
+      .filter(a => a.name !== 'BUSD')
+      .map((x: any) => {
         return new Token(x.chainId, x.address, x.decimals, x.symbol, x.name)
       })
+    : availableTokens.map((x: any) => {
+      return new Token(x.chainId, x.address, x.decimals, x.symbol, x.name)
+    })
 
   const defaultTokenList = DEFAULT_TOKEN_LIST.filter((x: any) => x.chainId === chainId).map((x: any) => {
     return new Token(x.chainId, x.address, x.decimals, x.symbol, x.name)
@@ -97,7 +98,7 @@ export function CurrencySearch({
     )
   }, [isAddressSearch, searchToken, searchQuery, defaultTokenList, chainId, availableTokensArray])
 
-  const filteredSortedTokens: Token[] = useMemo(() => {
+  let filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken]
     const sorted = filteredTokens.sort(tokenComparator)
     const symbolMatch = searchQuery
@@ -153,8 +154,29 @@ export function CurrencySearch({
     },
     [filteredSortedTokens, handleCurrencySelect, searchQuery]
   )
-
-  const selectedListInfo = useSelectedListInfo()
+  
+  let selectedListInfo = useSelectedListInfo()
+  const newSelectedList = useSelectedListInfo()
+  //let totalList = useRef(() => {
+    
+    if (selectedListInfo === undefined) {
+      selectedListInfo = {} as { current: TokenList | null; pending: TokenList | null; loading: boolean; }
+    }
+    let newList: Token[] = []
+    
+    let tokenMergeLength = 0
+    if (newSelectedList && newSelectedList.current && newSelectedList.current.tokens && filteredSortedTokens) {
+      tokenMergeLength = newSelectedList.current.tokens.length + filteredSortedTokens.length
+    }
+    if (selectedListInfo.current?.tokens?.length !== tokenMergeLength) { 
+      const arrSortedTokens: Token[] = []
+      selectedListInfo?.current?.tokens?.map(token => {
+        arrSortedTokens.push(new Token(token.chainId, token.address, token.decimals, token.symbol, token.name))
+        
+      })
+      newList = arrSortedTokens.concat(filteredSortedTokens)
+      filteredSortedTokens = newList    
+    } 
 
   return (
     <Column style={{ width: '100%', flex: '1 1' }}>
@@ -197,7 +219,7 @@ export function CurrencySearch({
             <CurrencyList
               height={height}
               showETH={isCrossChain ? false : showETH}
-              currencies={!isCrossChain ? filteredSortedTokens : availableTokensArray}
+              currencies={!isCrossChain ? newList : availableTokensArray}
               onCurrencySelect={handleCurrencySelect}
               otherCurrency={otherSelectedCurrency}
               selectedCurrency={selectedCurrency}
