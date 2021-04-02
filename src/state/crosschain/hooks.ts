@@ -30,6 +30,7 @@ import { initialState } from './reducer'
 import { useActiveWeb3React } from '../../hooks'
 import { useEffect } from 'react'
 import useGasPrice from 'hooks/useGasPrice'
+import { switchNewList } from 'state/lists/actions'
 
 // import { afterWrite } from '@popperjs/core'
 
@@ -563,6 +564,9 @@ export function useCrossChain() {
       setCurrentChain({
         chain: GetCurrentChain(currentChainName)
       })
+    )
+    dispatch(
+      switchNewList({newCurrency:GetCurrentChain(currentChainName)?.symbol ?? 'ETH', chainNumber: (!chainId) ? 1 : chainId})
     )
     dispatch(setTransferAmount({ amount: '' }))
     UpdateOwnTokenBalance().catch(console.error)

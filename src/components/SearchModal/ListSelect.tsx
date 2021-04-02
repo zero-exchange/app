@@ -10,7 +10,7 @@ import { useOnClickOutside } from '../../hooks/useOnClickOutside'
 
 import useToggle from '../../hooks/useToggle'
 import { AppDispatch, AppState } from '../../state'
-import { acceptListUpdate, removeList, selectList } from '../../state/lists/actions'
+import { acceptListUpdate, removeList, selectList} from '../../state/lists/actions'
 import { useSelectedListUrl } from '../../state/lists/hooks'
 import { CloseIcon, ExternalLink, LinkStyledButton, TYPE } from '../../theme'
 import listVersionLabel from '../../utils/listVersionLabel'
@@ -89,9 +89,10 @@ function listUrlRowHTMLId(listUrl: string) {
 }
 
 const ListRow = memo(function ListRow({ listUrl, onBack }: { listUrl: string; onBack: () => void }) {
+  const dispatch = useDispatch<AppDispatch>()
   const listsByUrl = useSelector<AppState, AppState['lists']['byUrl']>(state => state.lists.byUrl)
   const selectedListUrl = useSelectedListUrl()
-  const dispatch = useDispatch<AppDispatch>()
+
   const { current: list, pendingUpdate: pending } = listsByUrl[listUrl]
 
   const isSelected = listUrl === selectedListUrl
@@ -133,8 +134,8 @@ const ListRow = memo(function ListRow({ listUrl, onBack }: { listUrl: string; on
       {list.logoURI ? (
         <ListLogo style={{ marginRight: '1rem' }} logoURI={list.logoURI} alt={`${list.name} list logo`} />
       ) : (
-        <div style={{ width: '24px', height: '24px', marginRight: '1rem' }} />
-      )}
+          <div style={{ width: '24px', height: '24px', marginRight: '1rem' }} />
+        )}
       <Column style={{ flex: '1' }}>
         <Row>
           <Text
@@ -194,22 +195,22 @@ const ListRow = memo(function ListRow({ listUrl, onBack }: { listUrl: string; on
           Selected
         </ButtonPrimary>
       ) : (
-        <>
-          <ButtonPrimary
-            className="select-button"
-            style={{
-              width: '5rem',
-              minWidth: '4.5rem',
-              padding: '0.5rem .35rem',
-              borderRadius: '12px',
-              fontSize: '14px'
-            }}
-            onClick={selectThisList}
-          >
-            Select
+          <>
+            <ButtonPrimary
+              className="select-button"
+              style={{
+                width: '5rem',
+                minWidth: '4.5rem',
+                padding: '0.5rem .35rem',
+                borderRadius: '12px',
+                fontSize: '14px'
+              }}
+              onClick={selectThisList}
+            >
+              Select
           </ButtonPrimary>
-        </>
-      )}
+          </>
+        )}
     </Row>
   )
 })
@@ -279,8 +280,8 @@ export function ListSelect({ onDismiss, onBack }: { onDismiss: () => void; onBac
           return l1.name.toLowerCase() < l2.name.toLowerCase()
             ? -1
             : l1.name.toLowerCase() === l2.name.toLowerCase()
-            ? 0
-            : 1
+              ? 0
+              : 1
         }
         if (l1) return -1
         if (l2) return 1

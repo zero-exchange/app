@@ -1,14 +1,19 @@
-  
+ 
 
 const ls = localStorage.getItem('redux_localstorage_simple_crosschain')
-let nameCurrentMainCurrency = 'ETH'
+export let MAIN_CURRENCY = 'ETH'
+export let CHAIN_ID = 1
 if(ls) {
-    nameCurrentMainCurrency = JSON.parse(ls).currentChain.symbol
+  MAIN_CURRENCY = JSON.parse(ls).currentChain.symbol
 }
 
-export function getListTokensByChain(chainId: string) {
-console.log("🚀 ~ file: lists.ts ~ line 10 ~ getListTokensByChain ~ chainId", chainId)
-   
+export const DEFAULT_ACTIVE_LIST_URLS: string[]  = []
+export function getListTokensByChain(currency: string, chainId: number) {  
+console.log("🚀 ~ file: lists.ts ~ line 11 ~ getListTokensByChain ~ chainId", chainId)
+CHAIN_ID = chainId
+const DEFAULT_LIST_OF_LISTS: string[] = listTokensFomChains[`${currency}List`]
+MAIN_CURRENCY = currency
+return {DEFAULT_LIST_OF_LISTS, DEFAULT_TOKEN_LIST_URL, DEFAULT_ACTIVE_LIST_URLS, MAIN_CURRENCY, CHAIN_ID}   
 }
 
 
@@ -65,9 +70,3 @@ const listTokensFomChains = {
       ], 
       BNBList: []
 }
-// lower index == higher priority for token import
- 
-export const DEFAULT_LIST_OF_LISTS: string[] =  listTokensFomChains[`${nameCurrentMainCurrency}List`]
- 
-// default lists to be 'active' aka searched across
-export const DEFAULT_ACTIVE_LIST_URLS: string[] = [DEFAULT_LIST_OF_LISTS[0]]

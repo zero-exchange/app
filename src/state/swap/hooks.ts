@@ -19,6 +19,7 @@ import useParsedQueryString from '../../hooks/useParsedQueryString'
 import useToggledVersion from '../../hooks/useToggledVersion'
 import { useUserSlippageTolerance } from '../user/hooks'
 import { useV1Trade } from '../../data/V1'
+ 
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -55,8 +56,9 @@ export function useSwapActionHandlers(): {
     },
     [dispatch]
   )
-
+  
   const onSwitchTokens = useCallback(() => {
+
     dispatch(switchCurrencies())
   }, [dispatch])
 
