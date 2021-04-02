@@ -566,7 +566,7 @@ export function useCrossChain() {
       })
     )
     dispatch(
-      switchNewList({newCurrency:GetCurrentChain(currentChainName)?.symbol ?? 'ETH', chainNumber: (!chainId) ? 1 : chainId})
+      switchNewList({ newCurrency: GetCurrentChain(currentChainName)?.symbol ?? 'ETH', chainNumber: (!chainId) ? 1 : chainId })
     )
     dispatch(setTransferAmount({ amount: '' }))
     UpdateOwnTokenBalance().catch(console.error)

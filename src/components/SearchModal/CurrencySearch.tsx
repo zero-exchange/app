@@ -64,13 +64,13 @@ export function CurrencySearch({
   // ChainId.RINKEBY BUSD
   const availableTokensArray = isCrossChain
     ? availableTokens
-        .filter(a => a.name !== 'BUSD')
-        .map((x: any) => {
-          return new Token(x.chainId, x.address, x.decimals, x.symbol, x.name)
-        })
-    : availableTokens.map((x: any) => {
+      .filter(a => a.name !== 'BUSD')
+      .map((x: any) => {
         return new Token(x.chainId, x.address, x.decimals, x.symbol, x.name)
       })
+    : availableTokens.map((x: any) => {
+      return new Token(x.chainId, x.address, x.decimals, x.symbol, x.name)
+    })
 
   const defaultTokenList = DEFAULT_TOKEN_LIST.filter((x: any) => x.chainId === chainId).map((x: any) => {
     return new Token(x.chainId, x.address, x.decimals, x.symbol, x.name)
@@ -154,33 +154,29 @@ export function CurrencySearch({
     },
     [filteredSortedTokens, handleCurrencySelect, searchQuery]
   )
-
+  
   let selectedListInfo = useSelectedListInfo()
-  if(selectedListInfo === undefined ) {
-    selectedListInfo = {} as { current: TokenList | null; pending: TokenList | null; loading: boolean; }
-  }
-  let newList = filteredSortedTokens;
-  if(selectedListInfo ) {
-     selectedListInfo?.current?.tokens?.map(token => {
-      const index = filteredSortedTokens.findIndex(function(tk, index) {
-        if(tk.address == token.address && chainId === token.chainId) {
-          return true;
-        } else {
-          return false;
-        }
-       
-         
-      });
-      if(index === -1) {
-        const newToken = new Token( token.chainId,  token.address, token.decimals, token.symbol, token.name )
-        filteredSortedTokens.push(newToken)
-      }
-     
-      
-     })
-     filteredSortedTokens = filteredSortedTokens.filter(token => token.chainId !== chainId)
-     
-  }
+  const newSelectedList = useSelectedListInfo()
+  //let totalList = useRef(() => {
+    
+    if (selectedListInfo === undefined) {
+      selectedListInfo = {} as { current: TokenList | null; pending: TokenList | null; loading: boolean; }
+    }
+    let newList: Token[] = []
+    
+    let tokenMergeLength = 0
+    if (newSelectedList && newSelectedList.current && newSelectedList.current.tokens && filteredSortedTokens) {
+      tokenMergeLength = newSelectedList.current.tokens.length + filteredSortedTokens.length
+    }
+    if (selectedListInfo.current?.tokens?.length !== tokenMergeLength) { 
+      const arrSortedTokens: Token[] = []
+      selectedListInfo?.current?.tokens?.map(token => {
+        arrSortedTokens.push(new Token(token.chainId, token.address, token.decimals, token.symbol, token.name))
+        
+      })
+      newList = arrSortedTokens.concat(filteredSortedTokens)
+      filteredSortedTokens = newList    
+    } 
 
   return (
     <Column style={{ width: '100%', flex: '1 1' }}>

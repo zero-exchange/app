@@ -9,7 +9,6 @@ if(ls) {
 
 export const DEFAULT_ACTIVE_LIST_URLS: string[]  = []
 export function getListTokensByChain(currency: string, chainId: number) {  
-console.log("🚀 ~ file: lists.ts ~ line 11 ~ getListTokensByChain ~ chainId", chainId)
 CHAIN_ID = chainId
 const DEFAULT_LIST_OF_LISTS: string[] = listTokensFomChains[`${currency}List`]
 MAIN_CURRENCY = currency
