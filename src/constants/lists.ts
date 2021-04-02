@@ -36,10 +36,10 @@ const GEMINI_LIST = 'https://www.gemini.com/uniswap/manifest.json'
 // const BA_LIST = 'https://raw.githubusercontent.com/The-Blockchain-Association/sec-notice-list/master/ba-sec-list.json'
 
 // from https://pangolin.exchange/ exchanges
-const AVAX_DEFI = 'https://raw.githubusercontent.com/pangolindex/tokenlists/main/defi.tokenlist.json'
-const AVAX_TOP_15 = 'https://raw.githubusercontent.com/pangolindex/tokenlists/main/top15.tokenlist.json'
-const AVAX_ETH = 'https://raw.githubusercontent.com/pangolindex/tokenlists/main/aeb.tokenlist.json'
-const AVAX_STABLECOINS = 'https://raw.githubusercontent.com/pangolindex/tokenlists/main/stablecoin.tokenlist.json'
+const AVAX_DEFI = 'https://raw.githubusercontent.com/zeroexchange/app/master/tokens-of-exchanges/avalanche/defi.tokenlist.json'
+const AVAX_TOP_15 = 'https://raw.githubusercontent.com/zeroexchange/app/master/tokens-of-exchanges/avalanche/top15.tokenlist.json'
+const AVAX_ETH = 'https://raw.githubusercontent.com/zeroexchange/app/master/tokens-of-exchanges/avalanche/aeb.tokenlist.json'
+const AVAX_STABLECOINS = 'https://raw.githubusercontent.com/zeroexchange/app/master/tokens-of-exchanges/avalanche/stablecoin.tokenlist.json'
 
 
 // used to mark unsupported tokens, these are hosted lists of unsupported tokens
