@@ -1,26 +1,32 @@
+import React, { useMemo, useState } from 'react'
 import { BarChart, Book, CreditCard, DollarSign, Menu as MenuIcon, RefreshCw } from 'react-feather'
 import { ExternalLink, TYPE } from '../../theme'
 import Row, { RowFixed } from '../Row'
-
-// import AvaxLogo from '../../assets/images/avax-logo.png'
+import { SUPPORTED_WALLETS } from '../../constants'
 import { ChainId } from '@zeroexchange/sdk'
 import ClaimModal from '../claim/ClaimModal'
-// import EthereumLogo from '../../assets/images/ethereum-logo.png'
 import Logo from '../../assets/svg/logo.svg'
 import LogoDark from '../../assets/images/logo-zero-512.png'
 import Menu from '../Menu'
 import { NavLink } from 'react-router-dom'
-import React from 'react'
 import Settings from '../Settings'
 import { Text } from 'rebass'
 import Web3Status from '../Web3Status'
 import { YellowCard } from '../Card'
-// import { darken } from 'polished'
 import styled from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
 import { useDarkModeManager } from '../../state/user/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
 import { useTranslation } from 'react-i18next'
+import CrossChainModal from 'components/CrossChainModal'
+import { useCrosschainState } from 'state/crosschain/hooks'
+import { CHAIN_LABELS } from '../../constants'
+import { CrosschainChain } from 'state/crosschain/actions'
+import Modal from 'components/Modal'
+import BlockchainLogo from 'components/BlockchainLogo'
+import { network } from '../../connectors/index';
+import PendingView from 'components/WalletModal/PendingView'
+import { crosschainConfig } from '../../constants/CrosschainConfig';
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -264,6 +270,201 @@ const NETWORK_SYMBOLS: any = {
   Kovan: 'ETH',
   Avalanche: 'AVAX',
   SmartChain: 'BNB'
+} 
+
+interface StyledCrossChainModalProps {
+  isOpen: boolean
+  onDismiss: () => void
+  supportedChains: Array<CrosschainChain>
+  activeChain?: string
+  isTransfer?: boolean
+  selectTransferChain: (str: CrosschainChain) => void
+}
+const ModalContainer = styled.div`
+  padding: 1.5rem;
+  width: 100%;
+  h5 {
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  p {
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    line-height: 20px;
+    color: #ced0d9;
+    a {
+      font-weight: bold;
+      color: ${({ theme }) => theme.primary1};
+      cursor: pointer;
+      outline: none;
+      text-decoration: none;
+      margin-left: 4px;
+      margin-right: 4px;
+    }
+  }
+  ul {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    li {
+      display: flex;
+      flex-direction: row;
+      margin-bottom: .5rem;
+      position: relative;
+      padding: 12px;
+      transition: all 0.2s ease-in-out;
+      border-radius: 12px;
+      align-items: center;
+      &.active {
+        background: rgba(255, 255, 255, 0.1);
+        &:before {
+          position: absolute;
+          content: '';
+          width: 8px;
+          height: 8px;
+          border-radius: 100%;
+          background: ${({ theme }) => theme.primary1};
+          top: 8px;
+          right: 8px;
+        }
+      }
+      &.disabled {
+        opacity: 0.35;
+        pointer-events: none;
+        user-select: none;
+      }
+      &.selectable {
+        cursor: pointer;
+        &:hover {
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+      &:hover {
+        background-color: blue;
+      }
+      img {
+        margin-right: 0.5rem;
+      }
+      span {
+      }
+    }
+  }
+`
+
+function StyledCrossChainModal({
+  isOpen,
+  onDismiss,
+  supportedChains,
+  activeChain,
+  isTransfer,
+  selectTransferChain
+}: StyledCrossChainModalProps) {
+  return (
+    <Modal isOpen={isOpen} onDismiss={onDismiss}>
+      <ModalContainer>
+        {<h5>Supported Blockchains:</h5>}
+        <ul>
+          <li className={'active'}>
+            <BlockchainLogo size="28px" blockchain={activeChain} />
+            <span>{activeChain}</span>
+          </li>
+          {supportedChains.map((chain: CrosschainChain) => (
+            <li
+              key={chain.chainID}
+              onClick={() => {
+                selectTransferChain(chain)
+                onDismiss()
+
+              }}
+              className={`
+              ${activeChain === chain.name && !isTransfer ? 'active' : ''}
+              ${(activeChain === chain.name && isTransfer) || chain.name === 'Polkadot' ? 'disabled' : ''}
+              ${isTransfer && activeChain !== chain.name ? 'selectable' : ''}
+            `}
+            >
+              <BlockchainLogo size="28px" blockchain={chain.name} />
+              <span>{chain.name}</span>
+            </li>
+          ))}
+        </ul>
+      </ModalContainer>
+    </Modal>
+  )
+}
+
+
+function NetworkSwitcher() {
+  const { chainId } = useActiveWeb3React()
+  const {
+    availableChains: allChains,
+  } = useCrosschainState()
+  const availableChains = useMemo(() => {
+    return allChains.filter(i => i.name !== (chainId ? CHAIN_LABELS[chainId] : 'Ethereum'))
+  }, [allChains])
+
+  const [crossChainModalOpen, setShowCrossChainModal] = useState(false)
+  const hideCrossChainModal = () => {
+    setShowCrossChainModal(false)
+    // startNewSwap()
+  }
+  const showCrossChainModal = () => {
+    setShowCrossChainModal(true)
+  }
+
+  const onSelectTransferChain = async (chain: CrosschainChain) => {
+    let { ethereum } = window;
+    if (ethereum) {
+      let chainsConfig = null;
+      for (const item of crosschainConfig.chains) {
+        if (item.chainId === +chain.chainID) {
+          chainsConfig = item
+        }
+      }
+      if (chainsConfig) {
+        const hexChainId = "0x" + Number(chainsConfig.networkId).toString(16);
+        const data = [{
+          chainId: hexChainId,
+          chainName: chainsConfig.name,
+          nativeCurrency:
+          {
+            name: chainsConfig.nativeTokenSymbol,
+            symbol: chainsConfig.nativeTokenSymbol,
+            decimals: 18
+          },
+          rpcUrls: [chainsConfig.rpcUrl],
+          blockExplorerUrls: [chainsConfig.blockExplorer],
+        }]
+        /* eslint-disable */
+        const tx = (ethereum && ethereum.request) ? await ethereum['request']({ method: 'wallet_addEthereumChain', params: data }).catch() : ''
+
+        if (tx) {
+          console.log(tx)
+        }
+      }
+    }
+
+  }
+  return (
+    <>
+      <div onClick={showCrossChainModal}>
+        <HideSmall>
+          {chainId && NETWORK_LABELS[chainId] && (
+            <NetworkCard title={NETWORK_LABELS[chainId]}>{NETWORK_LABELS[chainId]}</NetworkCard>
+          )}
+        </HideSmall>
+        <StyledCrossChainModal
+          isOpen={crossChainModalOpen}
+          onDismiss={hideCrossChainModal}
+          supportedChains={availableChains}
+          selectTransferChain={onSelectTransferChain}
+          activeChain={chainId ? NETWORK_LABELS[chainId] : 'Ethereum'}
+        />
+      </div>
+    </>
+  )
 }
 
 export default function Header() {
@@ -312,23 +513,9 @@ export default function Header() {
           </HeaderExternalLink>
         </HeaderLinks>
       </HeaderRow>
-      {/*<CurrentChain>
-        <p>Current Blockchain: </p>
-        { chainId === 1 &&
-          <img width={'28px'} src={EthereumLogo} alt="logo" />
-        }
-        { chainId === 43113 &&
-          <img width={'28px'} src={AvaxLogo} alt="logo" />
-        }
-      </CurrentChain>*/}
-
       <HeaderControls>
         <HeaderElement>
-          <HideSmall>
-            {chainId && NETWORK_LABELS[chainId] && (
-              <NetworkCard title={NETWORK_LABELS[chainId]}>{NETWORK_LABELS[chainId]}</NetworkCard>
-            )}
-          </HideSmall>
+          <NetworkSwitcher />
           <AccountElement active={!!account} style={{ pointerEvents: 'auto' }}>
             {account && userEthBalance ? (
               <BalanceText style={{ flexShrink: 0 }} pl="0.75rem" pr="0.5rem" fontWeight={500}>
